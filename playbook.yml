@@ -1,0 +1,14 @@
+---
+- name: Prepare SadBot's environment
+  hosts: "{{ HOSTS }}"
+  become: yes
+
+  roles:
+    - role: prepare-system
+    - role: gantsign.oh-my-zsh
+      users:
+        - username: "{{ USERNAME }}"
+    - role: configure-dotfiles
+      become: yes
+      become_user: "{{ USERNAME }}"
+

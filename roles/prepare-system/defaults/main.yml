@@ -1,0 +1,5 @@
+---
+# defaults file for prepare-system
+USERNAME: kozalo
+SSHD_PORT: 2222
+

@@ -1,0 +1,4 @@
+---
+# vars file for configure-dotfiles
+HOME: "/home/{{ USERNAME }}/"
+

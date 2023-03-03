@@ -1,0 +1,54 @@
+---
+- name: Check if the dotfiles repository was already clonned
+  stat:
+    # common way is to use a .profile file, so I think it's enough to check this pretty unique file
+    path: "{{ HOME }}/.shell_aliases"
+  register: shell_aliases
+
+- block: # ====== Clonning dotfiles ======
+  - name: Check if the .git directory already exists
+    stat:
+      path: "{{ HOME }}/.git"
+    register: git
+
+  - name: Fail if it's really exist
+    fail:
+      msg: The .git directory already exists! Please, check it and remove before running the playbook again.
+    when: git.stat.exists
+
+
+  - name: Clone dotfiles
+    git:
+      repo: https://github.com/kozalosev/dotfiles
+      dest: "{{ HOME }}/dotfiles"
+
+  - name: Move repository to the user's directory
+    copy:
+      remote_src: yes
+      src: "{{ HOME }}/dotfiles/.git"
+      dest: "{{ HOME }}/"
+
+  - name: Apply changes
+    shell: git reset --hard
+    args:
+      chdir: "{{ HOME }}/"
+
+  - name: Copy submodules
+    copy:
+      remote_src: yes
+      src: "{{ HOME }}/dotfiles/{{ item }}"
+      dest: "{{ HOME }}/{{ item }}"
+    loop:
+      - .vim/bundle/Vundle.vim
+      - .oh-my-zsh/custom/plugins/zsh-autosuggestions
+      - .oh-my-zsh/custom/plugins/zsh-syntax-highlighting
+
+  - name: Clear temporary files
+    file:
+      path: "{{ HOME }}/dotfiles"
+      state: absent
+  when: not shell_aliases.stat.exists
+
+- name: Configure ViM
+  shell: vim +PluginInstall +qall
+

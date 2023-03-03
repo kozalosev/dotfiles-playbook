@@ -1,0 +1,38 @@
+---
+- name: Ping
+  ping:
+
+- name: Install packages
+  apt: name={{ item }} state=latest
+  loop:
+    - openssh-server
+    - vim
+    - git
+    - zsh
+    - mc
+    - dos2unix
+    - neofetch
+    - iotop
+    - tcptrack
+    - net-tools
+    - zip
+    - unzip
+    - p7zip
+    - docker.io
+    - docker-compose
+    - sqlite3
+    - python3-pip
+    - python-is-python3
+    - ufw
+
+- name: Copy custom configuration of sshd
+  template:
+    src: sshd_config_custom.conf
+    dest: /etc/ssh/sshd_config.d/custom.conf
+
+- name: Set authorized key taken from file
+  ansible.posix.authorized_key:
+    user: "{{ USERNAME }}"
+    state: present
+    key: "{{ lookup('file', '/home/' + USERNAME + '/.ssh/id_ecdsa.pub') }}"
+
